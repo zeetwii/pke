@@ -48,7 +48,7 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 134e3
+    value: -134e3
   states:
     bus_sink: false
     bus_source: false
@@ -135,7 +135,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [45, 511]
+    coordinate: [45, 510]
     rotation: 0
     state: disabled
 - name: blocks_file_sink_0
@@ -247,7 +247,7 @@ blocks:
     ant8: ''
     ant9: ''
     args: '""'
-    bb_gain0: '40'
+    bb_gain0: '100'
     bb_gain1: '20'
     bb_gain10: '20'
     bb_gain11: '20'
@@ -384,7 +384,7 @@ blocks:
     freq7: 100e6
     freq8: 100e6
     freq9: 100e6
-    gain0: '30'
+    gain0: '100'
     gain1: '10'
     gain10: '10'
     gain11: '10'
@@ -416,7 +416,7 @@ blocks:
     gain7: '10'
     gain8: '10'
     gain9: '10'
-    if_gain0: '40'
+    if_gain0: '100'
     if_gain1: '20'
     if_gain10: '20'
     if_gain11: '20'
