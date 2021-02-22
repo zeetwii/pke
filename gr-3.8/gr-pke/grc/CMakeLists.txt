@@ -19,5 +19,6 @@
 # Boston, MA 02110-1301, USA.
 
 install(FILES
-    pke_pkeGenerator.block.yml DESTINATION share/gnuradio/grc/blocks
+    pke_pkeGenerator.block.yml
+    pke_pkeDecoder.block.yml DESTINATION share/gnuradio/grc/blocks
 )

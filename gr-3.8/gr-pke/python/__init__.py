@@ -33,4 +33,5 @@ except ImportError:
 
 # import any pure python here
 from .pkeGenerator import pkeGenerator
+from .pkeDecoder import pkeDecoder
 #

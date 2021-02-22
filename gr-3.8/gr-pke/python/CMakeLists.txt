@@ -32,7 +32,8 @@ endif()
 GR_PYTHON_INSTALL(
     FILES
     __init__.py
-    pkeGenerator.py DESTINATION ${GR_PYTHON_DIR}/pke
+    pkeGenerator.py
+    pkeDecoder.py DESTINATION ${GR_PYTHON_DIR}/pke
 )
 
 ########################################################################

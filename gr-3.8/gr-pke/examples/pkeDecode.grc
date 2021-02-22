@@ -5,12 +5,12 @@ options:
     cmake_opt: ''
     comment: ''
     copyright: ''
-    description: Record and decode the PKE Signal from cars
+    description: Flowgraph tha transmits PKE messages
     gen_cmake: 'On'
     gen_linking: dynamic
     generate_options: qt_gui
     hier_block_src_path: '.:'
-    id: pkeDecode
+    id: pkeTransmit
     max_nouts: '0'
     output_language: python
     placement: (0,0)
@@ -21,7 +21,7 @@ options:
     run_options: prompt
     sizing_mode: fixed
     thread_safe_setters: ''
-    title: PKE Decoder
+    title: PKE Transmit
     window_size: ''
   states:
     bus_sink: false
@@ -36,15 +36,39 @@ blocks:
   id: variable
   parameters:
     comment: ''
-    value: 134e3
+    value: 'msg_freq + offset_freq '
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [283, 12]
+    coordinate: [436, 14]
     rotation: 0
     state: true
-- name: offsetFreq
+- name: decodeMul
+  id: variable
+  parameters:
+    comment: ''
+    value: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [446, 83]
+    rotation: 0
+    state: true
+- name: msg_freq
+  id: variable
+  parameters:
+    comment: ''
+    value: -134e3
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [540, 15]
+    rotation: 0
+    state: true
+- name: offset_freq
   id: variable
   parameters:
     comment: ''
@@ -53,23 +77,47 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [394, 11]
+    coordinate: [322, 84]
+    rotation: 0
+    state: true
+- name: pulse_size
+  id: variable
+  parameters:
+    comment: ''
+    value: 200e-6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [213, 81]
+    rotation: 0
+    state: true
+- name: rate_mul
+  id: variable
+  parameters:
+    comment: ''
+    value: pulse_size / (1/samp_rate)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [332, 17]
     rotation: 0
     state: true
 - name: samp_rate
   id: variable
   parameters:
     comment: ''
-    value: 24e3
+    value: 2e6
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [184, 12]
+    coordinate: [211, 12]
     rotation: 0
     state: enabled
-- name: blocks_complex_to_float_0
-  id: blocks_complex_to_float
+- name: blocks_complex_to_mag_squared_0
+  id: blocks_complex_to_mag_squared
   parameters:
     affinity: ''
     alias: ''
@@ -81,51 +129,61 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [399, 115]
+    coordinate: [614, 233]
     rotation: 0
-    state: true
-- name: blocks_file_source_0
-  id: blocks_file_source
+    state: disabled
+- name: blocks_float_to_complex_0
+  id: blocks_float_to_complex
   parameters:
     affinity: ''
     alias: ''
-    begin_tag: pmt.PMT_NIL
     comment: ''
-    file: /home/zee/rf/captures/lowSpeed/24kHzNoKeyStart.complex
-    length: '0'
     maxoutbuf: '0'
     minoutbuf: '0'
-    offset: '0'
-    repeat: 'True'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [60, 294]
+    rotation: 0
+    state: enabled
+- name: blocks_keep_one_in_n_0
+  id: blocks_keep_one_in_n
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    maxoutbuf: '0'
+    minoutbuf: '0'
+    n: int(int(rate_mul) / decodeMul)
+    type: float
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [713, 296]
+    rotation: 0
+    state: true
+- name: blocks_multiply_const_xx_0
+  id: blocks_multiply_const_xx
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    const: '1'
+    maxoutbuf: '0'
+    minoutbuf: '0'
     type: complex
     vlen: '1'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [30, 188]
+    coordinate: [247, 306]
     rotation: 0
     state: true
-- name: blocks_peak_detector_xb_0
-  id: blocks_peak_detector_xb
-  parameters:
-    affinity: ''
-    alias: ''
-    alpha: '0.001'
-    comment: ''
-    look_ahead: '10'
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    threshold_factor_fall: '0.40'
-    threshold_factor_rise: '0.25'
-    type: float
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [618, 63]
-    rotation: 0
-    state: enabled
 - name: blocks_rms_xx_0
   id: blocks_rms_xx
   parameters:
@@ -140,27 +198,27 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [600, 223]
+    coordinate: [579, 364]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_threshold_ff_0
   id: blocks_threshold_ff
   parameters:
     affinity: ''
     alias: ''
     comment: ''
-    high: '0.1'
+    high: '0.015'
     init: '0'
-    low: '0.1'
+    low: '.015'
     maxoutbuf: '0'
     minoutbuf: '0'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [726, 184]
+    coordinate: [874, 315]
     rotation: 0
-    state: disabled
+    state: true
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -177,85 +235,41 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [383, 221]
+    coordinate: [499, 293]
     rotation: 0
     state: true
-- name: correctiq_correctiq_0
-  id: correctiq_correctiq
+- name: pke_pkeDecoder_0
+  id: pke_pkeDecoder
   parameters:
     affinity: ''
     alias: ''
     comment: ''
+    ipAddr: 0.0.0.0
+    multiplier: decodeMul
+    portNum: '7331'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [949, 204]
+    rotation: 0
+    state: true
+- name: pke_pkeGenerator_0
+  id: pke_pkeGenerator
+  parameters:
+    affinity: ''
+    alias: ''
+    comment: ''
+    ipAddr: 0.0.0.0
     maxoutbuf: '0'
     minoutbuf: '0'
+    multiplier: round(rate_mul)
+    portNum: '7331'
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [244, 225]
-    rotation: 0
-    state: enabled
-- name: qtgui_number_sink_0
-  id: qtgui_number_sink
-  parameters:
-    affinity: ''
-    alias: ''
-    autoscale: 'False'
-    avg: '0'
-    color1: ("black", "black")
-    color10: ("black", "black")
-    color2: ("black", "black")
-    color3: ("black", "black")
-    color4: ("black", "black")
-    color5: ("black", "black")
-    color6: ("black", "black")
-    color7: ("black", "black")
-    color8: ("black", "black")
-    color9: ("black", "black")
-    comment: ''
-    factor1: '1'
-    factor10: '1'
-    factor2: '1'
-    factor3: '1'
-    factor4: '1'
-    factor5: '1'
-    factor6: '1'
-    factor7: '1'
-    factor8: '1'
-    factor9: '1'
-    graph_type: qtgui.NUM_GRAPH_HORIZ
-    gui_hint: ''
-    label1: ''
-    label10: ''
-    label2: ''
-    label3: ''
-    label4: ''
-    label5: ''
-    label6: ''
-    label7: ''
-    label8: ''
-    label9: ''
-    max: '1'
-    min: '-1'
-    name: '""'
-    nconnections: '1'
-    type: byte
-    unit1: ''
-    unit10: ''
-    unit2: ''
-    unit3: ''
-    unit4: ''
-    unit5: ''
-    unit6: ''
-    unit7: ''
-    unit8: ''
-    unit9: ''
-    update_time: '0.0010'
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [872, 32]
+    coordinate: [9, 124]
     rotation: 0
     state: enabled
 - name: qtgui_sink_x_0
@@ -278,57 +292,27 @@ blocks:
     rate: '10'
     showports: 'False'
     showrf: 'False'
-    type: complex
-    wintype: firdes.WIN_BLACKMAN_hARRIS
-  states:
-    bus_sink: false
-    bus_source: false
-    bus_structure: null
-    coordinate: [681, 360]
-    rotation: 0
-    state: enabled
-- name: qtgui_sink_x_0_0
-  id: qtgui_sink_x
-  parameters:
-    affinity: ''
-    alias: ''
-    bw: samp_rate
-    comment: ''
-    fc: '0'
-    fftsize: '1024'
-    gui_hint: ''
-    maxoutbuf: '0'
-    minoutbuf: '0'
-    name: '""'
-    plotconst: 'True'
-    plotfreq: 'True'
-    plottime: 'True'
-    plotwaterfall: 'True'
-    rate: '10'
-    showports: 'False'
-    showrf: 'False'
     type: float
     wintype: firdes.WIN_BLACKMAN_hARRIS
   states:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [893, 328]
+    coordinate: [861, 46]
     rotation: 0
-    state: disabled
+    state: true
 
 connections:
-- [blocks_complex_to_float_0, '0', blocks_peak_detector_xb_0, '0']
-- [blocks_complex_to_float_0, '0', blocks_threshold_ff_0, '0']
-- [blocks_file_source_0, '0', correctiq_correctiq_0, '0']
-- [blocks_peak_detector_xb_0, '0', qtgui_number_sink_0, '0']
-- [blocks_rms_xx_0, '0', blocks_peak_detector_xb_0, '0']
-- [blocks_rms_xx_0, '0', blocks_threshold_ff_0, '0']
-- [blocks_threshold_ff_0, '0', qtgui_sink_x_0_0, '0']
-- [blocks_throttle_0, '0', blocks_complex_to_float_0, '0']
+- [blocks_complex_to_mag_squared_0, '0', blocks_keep_one_in_n_0, '0']
+- [blocks_float_to_complex_0, '0', blocks_multiply_const_xx_0, '0']
+- [blocks_keep_one_in_n_0, '0', blocks_threshold_ff_0, '0']
+- [blocks_multiply_const_xx_0, '0', blocks_throttle_0, '0']
+- [blocks_rms_xx_0, '0', blocks_keep_one_in_n_0, '0']
+- [blocks_threshold_ff_0, '0', pke_pkeDecoder_0, '0']
+- [blocks_threshold_ff_0, '0', qtgui_sink_x_0, '0']
+- [blocks_throttle_0, '0', blocks_complex_to_mag_squared_0, '0']
 - [blocks_throttle_0, '0', blocks_rms_xx_0, '0']
-- [blocks_throttle_0, '0', qtgui_sink_x_0, '0']
-- [correctiq_correctiq_0, '0', blocks_throttle_0, '0']
+- [pke_pkeGenerator_0, '0', blocks_float_to_complex_0, '0']
 
 metadata:
   file_format: 1
