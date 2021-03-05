@@ -13,3 +13,12 @@ Passive Keyless Entry (PKE) is the system that allows a user to enter their car 
 | The handle transmits the output of the sensor down to the immobilizer system inside the car, when it see's that the sensor has been triggered, the immobilizer system has the car begin the four way handshake to unlock itself. |
 
 The four way handshake can be broken into two sections, a static introduction and a dynamic passphrase.  For the first part of the handshake, the car begins the process by broadcasting a short static message on 134 kHz.  This message seems to be unique to each individual car manufacturer (Toyota, Ford, ect), and is used to ensure that a key fob from the same manufacturer is nearby.  When a fob from the same manufacturer is nearby, it replies with a short message on either 315MHz or 434MHz, depending on vendor and model.  Both of these messages are static, in that none of the bits change regardless of when or how often the message is sent.  
+
+| [Insert Image of Initial Car message] |
+| :---: |
+| Above is the initial message that the car generates to see if any key fobs are nearby.  Note the message in the image is from a 2014 Toyota Prius, and will be different for other vendors |
+
+| [Insert Image of Initial fob response] |
+| :---: |
+| The first part of the fob's response to the car, a static message that lets the car know that a fob is nearby.  Note this is the response from a 2014 Toyota Prius fob, and other vendors will have a different response in this field. |
+
