@@ -18,21 +18,21 @@ Passive Keyless Entry (PKE) is the system that allows a user to enter their car 
 
 The four way handshake can be broken into two sections, a static introduction and a dynamic passphrase.  For the first part of the handshake, the car begins the process by broadcasting a short static message on 134 kHz.  This message seems to be unique to each individual car manufacturer (Toyota, Ford, ect), and is used to ensure that a key fob from the same manufacturer is nearby.  When a fob from the same manufacturer is nearby, it replies with a short message on either 315MHz or 434MHz, depending on vendor and model.  Both of these messages are static, in that none of the bits change regardless of when or how often the message is sent.  
 
-| [Insert Image of Initial Car message] |
+| ![Insert Image of Initial Car message](./photos/pkeInit.PNG) |
 | :---: |
 | Above is the initial message that the car generates to see if any key fobs are nearby.  Note the message in the image is from a 2014 Toyota Prius, and will be different for other vendors |
 
-| [Insert Image of Initial fob response] |
+| ![Insert Image of Initial fob response](./photos/fobInitial.PNG) |
 | :---: |
 | The first message of the fob's response to the car, a static message that lets the car know that a fob is nearby.  Note this is the response from a 2014 Toyota Prius fob, and other vendors will have a different response in this field. |
 
 The second part of the handshake is where we begin to see more unique and dynamic messages.  Where the first half of the handshake was to simply see if any relevant fob was nearby, this half focuses on uniquely identifying the fob, and issuing it a random challenge to solve.  This half starts with the car sending out a much longer message, that starts with the car's specific ID and ends with the seed the fob will use to solve it's challenge.  For the fob, it will first check to see if the car ID matches the one it has been paired with.  If the fob see's the car ID that it expects, it will then run the seed through it's proprietary algorithm and send that response, along with the fob's unique ID back to the car.  One key thing to note, it is only on the completion of this second half of the handshake that those fobs with an LED will light up and alert the user that they are transmitting.  
 
-| [Insert Image of Second Car message] |
+| ![Insert Image of Second Car message](./photos/pkeSecond.PNG) |
 | :---: |
 | Above is the message the car generates after it is alerted that there is possibly a valid fob nearby.  Note the message in the image is from a 2014 Toyota Prius, and will be different for other vendors |
 
-| [Insert Image of Second fob response] |
+| ![Insert Image of Second fob response](./photos/fobSecond.PNG) |
 | :---: |
 | The second message the fob generates, this time responding to the challenge message from the car.  This message is only supposed to be generated if the fob and car have been paired.  Note this is the response from a 2014 Toyota Prius fob, and other vendors will have a different response in this field. |
 
@@ -47,3 +47,33 @@ The second, and in my opinion more novel, use of PKE is as a means to actively i
 This dramatically changes the way vehicle tracking can work and what is possible in this space.  Rather than needing a complex camera system and neural network to identify and track cars real time, you instead just need a directional antenna that works at 134 kHz.  Because the key fob is relatively high powered compared to other transmitters in this space, a single SDR transmitting can easily cover a large parking lot with commercially available hardware.  
 
 Given that the tracking focuses on the first half of the four way handshake, where the car is traditionally looking for a fob from the same manufacturer, we've decided to refer to this attack as Marco.  This is because the attack has a lot of similarities with game Marco Polo, both involve tracking and identifying multiple targets in a non-visual manner.  
+
+## Marco
+
+| ![Insert image of Marco setup](./photos/txSetup.jpg) |
+| :---: |
+| This is an example of the setup used to perform the Marco attack. Different antennas and SDRs can be used to adjust the size and range to the requirements of the attacker.  In the configuration shown, the total hardware cost to preform the attack is under $500.|
+
+As discussed earlier, Marco is a new technique to allow for both active identification and tracking of cars and other PKE enabled vehicles over RF.  To preform this attack the attacker generates a series of PKE initialization messages, effectively mimicking a wide variety of different car manufactures at once.  The attacker than listens for the fob's initial response messages on 315 MHz and 434 MHz depending on the car manufacturer.  Because the attacker is the one generating the interrogation, they can control how many responses they get from the tracked vehicle and what the delay between interrogations is.  This allows much more flexibility than other passive methods like TPMS tracking.  Whereas TPMS only generates a message once every 30 seconds or so, Marco gives the attacker the option to interrogate multiple times a second.  This allows for much higher fidelity tracks than have normally been possible.  Additionally, while many people now carry around burner phones for discrete communications, few have dedicated themselves to having burner cars for transportation.  This means that once the attacker knows the car the target is using, they can easily track them across multiple days and weeks whenever the target is within range of the attacker.  
+
+Below we'll discuss three implementations of Marco that focus on area surveillance, popup tracking, and known target validation.
+
+### Area Surveillance
+
+In this configuration, the attacker would be using omnidirectional antennas for both transmitting and receiving messages.  The attacker sends out a repeating string of PKE messages that mimic the initial PKE interrogation of a wide variety of different manufactures to cause any vehicle within range to respond.  Then the attacker can simply sit still and collect data.  
+
+This technique has an advantage over current surveillance methods because the attacker can cover a large area with only a single deployed asset.  Additionally the observer system can be out of line of sight of the area it is scanning, allowing the system to be farm more discrete than current monitoring systems.  
+
+### Popup Tracking
+
+As long as either the transmit or receive setup is using a directional antenna, the attacker can find the relative position of the car to themselves by figuring out the angle of arrival of the signal, and then using the change in signal strength to decide if the car is traveling towards or away from them.  Then, assuming the attacker is also able to move positions at a speed faster than the vehicle being tracked, the attacker can begin closing in on the target until it is within visual range.  
+
+In theory the attacker can freely switch between this mode and area surveillance at any point in time.  This gives the attacker the advantage of staying out of sight only until a suspected target of interest enters their space.  
+
+### Target Validation
+
+The above uses of Marco focus on exploiting the first half of the four way handshake, because those exploits require zero previous knowledge of the vehicle being tracked.  However each of those techniques can only tell the attacker that a vehicle from a given manufacturer of a specific type is nearby.  But what if the attacker wants to only target a single specific vehicle and ignore all others?  If the attacker has been able to capture a single instance of a full four way PKE handshake from their target, this can be done.  
+
+Recall that the first half of the PKE handshake is static, while the second half is dynamic.  The dynamic section involves both the car and fob transmitting their unique ID as a way to validate each other.  If the attacker knows the unique ID of the fob they are tracking, they can use that to specifically track and validate that they are targeting that fob and that fob alone.  
+
+The reason for this is that while the two validating messages are dynamic, they are also repeatable.  The car transmits it's car ID and a seed that acts as the question, while the fob responds with it's own ID and the solution it's calculated using the provided seed.  The key thing to know is that the fob will give the exact same answer every time it is presented with that seed.  This means that once the attacker is able to record the car ID that the fob has been paired to, they can either replay the capture message or simply pass in a dummy seed value and listen for the fobs response.  The advantage of all of this extra work is that now they can look and track for a single specific fob ID, or validate over RF that the vehicle they are tracking is the one that they think it is.  
