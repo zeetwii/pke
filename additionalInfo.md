@@ -8,9 +8,9 @@ Passive Keyless Entry (PKE) is the system that allows a user to enter their car 
 | :---: |
 | As seen above, the inside of the car handle has two metal plates that act as a capacitive sensor.  Note there is also an antenna inside the handle that allows the car to hear the key fob wen it is talking at 315/434 MHz |
 
-| [Insert Image of car handle capture here] |
+| ![Insert Image of car handle capture here](./photos/handleData.png) |
 | :---: |
-| The handle transmits the output of the sensor down to the immobilizer system inside the car, when it see's that the sensor has been triggered, the immobilizer system has the car begin the four way handshake to unlock itself. |
+| The handle transmits the output of the sensor down to the immobilizer system inside the car, when it see's that the sensor has been triggered, the immobilizer system has the car begin the four way handshake to unlock itself. In this image the middle row is the output of the capacitive sensor, and it goes low every time it is touched.  |
 
 | [Insert diagram of the 4way handshake] |
 | :---: |
