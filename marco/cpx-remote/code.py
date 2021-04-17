@@ -4,6 +4,7 @@ Because somehow this doesn't work on the pi directly
 """
 
 import board
+import busio
 #import neopixel
 
 import time
@@ -30,9 +31,7 @@ ble = BLERadio()
 #pixels = neopixel.NeoPixel(board.NEOPIXEL, 10, brightness=0.1)
 cpb.pixels.brightness = 0.1
 
-# Setup for preventing repeated button presses and tracking switch state
-button_a_pressed = False
-button_b_pressed = False
+uart = busio.UART(board.TX, board.RX, baudrate=9600)
 
 uart_connection = None
 # See if any existing connections are providing UARTService.
@@ -55,26 +54,21 @@ while True:
         # Stop scanning whether or not we are connected.
         ble.stop_scan()  # And stop scanning.
     while uart_connection and uart_connection.connected:  # If connected...
-        if cpb.button_a and not button_a_pressed:  # If button A pressed...
-            print("Button A pressed.")
-            # Send a LEFT button packet.
-            if not send_packet(uart_connection,"R F 90"):
-                uart_connection = None
-                continue
-            button_a_pressed = True  # Set to True.
-            time.sleep(0.05)  # Debounce.
-        if not cpb.button_a and button_a_pressed:  # On button release...
-            button_a_pressed = False  # Set to False.
-            time.sleep(0.05)  # Debounce.
-        if cpb.button_b and not button_b_pressed:  # If button B pressed...
-            print("Button B pressed.")
-            # Send a RIGHT button packet.
-            if not send_packet(uart_connection, "R B 90"):
-                uart_connection = None
-                continue
-            button_b_pressed = True  # Set to True.
-            time.sleep(0.05)  # Debounce.
-        if not cpb.button_b and button_b_pressed:  # On button release...
-            button_b_pressed = False  # Set to False.
-            time.sleep(0.05)  # Debounce.
-        time.sleep(0.1)  # Delay to prevent sending packets too quickly.
+        data = uart.read(32)  # read up to 32 bytes
+
+        if data is not None:
+            data_string = ''.join([chr(b) for b in data])
+
+            if len(data_string) > 1:
+                print(data_string)
+
+                if send_packet(uart_connection, data_string):
+                    if UARTService().in_waiting:
+                        raw_bytes = UARTService().read(UARTService().in_waiting)
+                        text = raw_bytes.decode().strip()
+                        print("RX:", text)
+
+                        uart.write(text.encode())
+                else:
+                    uart_connection = None
+                    continue
