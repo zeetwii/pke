@@ -44,13 +44,13 @@ while True:
                 crickit.stepper_motor.onestep(direction=stepper.BACKWARD, style=stepper.DOUBLE)
             crickit.stepper_motor.release()
 
-        response = "R " + direction + " " + str(count * stepAngle)
+        response = "R " + direction + " " + str(count * stepAngle) + "\n"
         uart_service.write(response.encode())
 
     # handles changing the color of the leds
-    def changeColor(color):
-        pixels.fill(color)
-        response = "C " + str(color)
+    def changeColor(r, g, b):
+        pixels.fill((r, g, b))
+        response = "C " + str(r) + " " + str(g) + " " + str(b) + "\n"
         uart_service.write(response.encode())
 
     # Loop and read packets
@@ -69,10 +69,10 @@ while True:
             if cmd[0] == 'R' and len(cmd) >= 3:
                 rotateMotor(cmd[1], cmd[2])
             elif cmd[0] == 'C' and len(cmd) >= 4:
-                changeColor((int(cmd[1]), int(cmd[2]), int(cmd[3])))
+                changeColor(int(cmd[1]), int(cmd[2]), int(cmd[3]))
             else:
                 # transmit message back to alert of error
-                msg = "ERROR 404 " + text
+                msg = "ERROR 404 " + text + "\n"
                 uart_service.write(msg.encode())
 
     # Disconnected
