@@ -98,7 +98,7 @@ After GNURadio 3.8, gr-osmocom hasn't really been maintained.  This means that t
 To build gr-soapy, follow the instructions at [gr-soapy](https://gitlab.com/librespacefoundation/gr-soapy) or read below:
 
 ```bash
-apt-get install \
+sudo apt install \
   libboost-dev \
   libboost-date-time-dev \
   libboost-filesystem-dev \
