@@ -17,6 +17,8 @@ def addCommand():
 
     centerFreq = input("\nEnter the center frequency in hertz: ")
 
+    centerFreq = input("\nEnter the offset frequency in hertz, or 0 if there is none: ")
+
     pulseWidth = input("\nEnter the pulse width for the signal in seconds: ")
 
     repeatCount = input("\nEnter how many times to repeat the signal per run: ")
