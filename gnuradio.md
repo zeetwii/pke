@@ -89,9 +89,9 @@ If you have installed in a custom path with `-DCMAKE_INSTALL_PREFIX=XXX`, you wi
 
 ## SoapySDR
 
-After GNURadio 3.8, gr-osmocom hasn't really been maintained.  This means that to use GNURadio 3.9 or newer, we need a different block to act as the interface between the SDR and GNURadio.  The best replacement right now is SoapySDR and the gr-sopay module.  
+After GNURadio 3.8, gr-osmocom hasn't really been maintained.  This means that to use GNURadio 3.9 or newer, we need a different block to act as the interface between the SDR and GNURadio.  The best replacement right now is SoapySDR.  
 
-To build gr-soapy, follow the instructions at [gr-soapy](https://gitlab.com/librespacefoundation/gr-soapy) or read below:
+To build SoapySDR, follow the instructions at [SoapySDR](https://github.com/pothosware/SoapySDR) or read below:
 
 ```bash
 sudo apt install \
@@ -121,8 +121,8 @@ sudo apt install \
 ```
 
 ```bash
-git clone https://gitlab.com/librespacefoundation/gr-soapy
-cd gr-soapy
+git clone https://github.com/pothosware/SoapySDR.git
+cd SoapySDR
 mkdir build
 cd build
 cmake ..
