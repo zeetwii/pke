@@ -13,43 +13,34 @@ def addCommand():
     # prompts the user for command settings
     commandID = input("\nEnter command ID: ")
 
-    command = input("\nEnter the command in hex: ")
+    
+    
+    try:
+        command = input("\nEnter the command in hex: ")
+        int(command, 16) # check that command is hex
+        
+        bp = input("\nEnter the bit period for the signal in seconds: ")
+        if float(bp) <= 0: # check that the bit period is greater than zero
+            print("Bit period cannot be zero or negative")
+            return None, [0,0,0,0]
+        
+        sleepDelay = input("\nEnter how long to wait to retransmit in seconds: ")
+        if float(sleepDelay) < 0: # check that sleep is not negative
+            print("Retransmission delay cannot be negative")
+            return None, [0,0,0,0]
+        
+        minDelay = len(format(int(command, 16), '04b')) * float(bp) # calculate how long it will take to transmit the message
+        retransmitDelay = float(sleepDelay) + minDelay # calculate the total delay
+        retransmitDelay = str(retransmitDelay)
+        
+        responseFreq = input("\nEnter the frequency the key fob is expected to respond on in hertz: ")
+        int(responseFreq) # check that the response freq is an int
+        
+    except ValueError:
+        print("Error, data was entered incorrectly, returning to main menu")
+        return None, [0,0,0,0]
 
-    centerFreq = input("\nEnter the center frequency in hertz: ")
-
-    centerFreq = input("\nEnter the offset frequency in hertz, or 0 if there is none: ")
-
-    pulseWidth = input("\nEnter the pulse width for the signal in seconds: ")
-
-    repeatCount = input("\nEnter how many times to repeat the signal per run: ")
-
-    sleepDelay = input("\nEnter how long to wait to retransmit in seconds: ")
-
-    return commandID, [command, centerFreq, pulseWidth, repeatCount, sleepDelay]
-
-
-def quickTest():
-    shortWake = '1' * 11 + '0101010111010'
-    spacer = '0' * 48
-    longWake = '1' * 10 + '0110101110101110111010'
-    temp = shortWake + spacer + longWake
-    dec = int(temp, 2)
-    hexString = hex(dec)
-
-    print(shortWake + f" : {str(len(shortWake))} bits")
-    print(hex(int(shortWake, 2)))
-    print('\n')
-
-    print(spacer + f" : {str(len(spacer))} bits")
-    print(hex(int(spacer, 2)))
-    print('\n')
-
-    print(longWake + f" : {str(len(longWake))} bits")
-    print(hex(int(longWake, 2)))
-    print('\n')
-
-    print(temp + f" : {str(len(temp))} bits")
-    print(hexString)
+    return commandID, [command, bp, retransmitDelay, responseFreq]
 
 
 if __name__ == "__main__":
@@ -82,7 +73,8 @@ if __name__ == "__main__":
         
         if userSelection == '1': # add command
             key, cmd = addCommand()
-            commandDic[key] = cmd
+            if key is not None:
+                commandDic[key] = cmd
         else:
             break
         
