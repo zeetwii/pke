@@ -1,0 +1,7 @@
+/*!
+ * \defgroup block GNU Radio PKE C++ Signal Processing Blocks
+ * \brief All C++ blocks that can be used from the PKE GNU Radio
+ *        module are listed here or in the subcategories below.
+ *
+ */
+
