@@ -44,32 +44,18 @@ class pke_transmit(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.xmlrpc_server_0 = SimpleXMLRPCServer(('localhost', 8080), allow_none=True)
+        self.xmlrpc_server_0 = SimpleXMLRPCServer(('127.0.0.1', 8080), allow_none=True)
         self.xmlrpc_server_0.register_instance(self)
         self.xmlrpc_server_0_thread = threading.Thread(target=self.xmlrpc_server_0.serve_forever)
         self.xmlrpc_server_0_thread.daemon = True
         self.xmlrpc_server_0_thread.start()
-        self.soapy_hackrf_source_0 = None
-        dev = 'driver=hackrf'
-        stream_args = ''
-        tune_args = ['']
-        settings = ['']
-
-        self.soapy_hackrf_source_0 = soapy.source(dev, "fc32", 1, 'hackrf=0',
-                                  stream_args, tune_args, settings)
-        self.soapy_hackrf_source_0.set_sample_rate(0, samp_rate)
-        self.soapy_hackrf_source_0.set_bandwidth(0, 0)
-        self.soapy_hackrf_source_0.set_frequency(0, 315e6)
-        self.soapy_hackrf_source_0.set_gain(0, 'AMP', 14)
-        self.soapy_hackrf_source_0.set_gain(0, 'LNA', min(max(32, 0.0), 40.0))
-        self.soapy_hackrf_source_0.set_gain(0, 'VGA', min(max(16, 0.0), 62.0))
         self.soapy_hackrf_sink_0 = None
         dev = 'driver=hackrf'
         stream_args = ''
         tune_args = ['']
         settings = ['']
 
-        self.soapy_hackrf_sink_0 = soapy.sink(dev, "fc32", 1, 'hackrf=1',
+        self.soapy_hackrf_sink_0 = soapy.sink(dev, "fc32", 1, 'hackrf=0',
                                   stream_args, tune_args, settings)
         self.soapy_hackrf_sink_0.set_sample_rate(0, samp_rate)
         self.soapy_hackrf_sink_0.set_bandwidth(0, 0)
@@ -78,20 +64,14 @@ class pke_transmit(gr.top_block):
         self.soapy_hackrf_sink_0.set_gain(0, 'VGA', min(max(47, 0.0), 47.0))
         self.pke_pkeGenerator_0 = pke.pkeGenerator('0.0.0.0', 7331, int(rate_mul))
         self.blocks_float_to_complex_0 = blocks.float_to_complex(1)
-        self.blocks_file_sink_1 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/zee/rf/captures/rx.cfile', False)
-        self.blocks_file_sink_1.set_unbuffered(False)
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex*1, '/home/zee/rf/captures/tx.cfile', False)
-        self.blocks_file_sink_0.set_unbuffered(False)
 
 
 
         ##################################################
         # Connections
         ##################################################
-        self.connect((self.blocks_float_to_complex_0, 0), (self.blocks_file_sink_0, 0))
         self.connect((self.blocks_float_to_complex_0, 0), (self.soapy_hackrf_sink_0, 0))
         self.connect((self.pke_pkeGenerator_0, 0), (self.blocks_float_to_complex_0, 0))
-        self.connect((self.soapy_hackrf_source_0, 0), (self.blocks_file_sink_1, 0))
 
 
     def get_samp_rate(self):
@@ -101,7 +81,6 @@ class pke_transmit(gr.top_block):
         self.samp_rate = samp_rate
         self.set_rate_mul(self.samp_rate / (1/self.bit_period))
         self.soapy_hackrf_sink_0.set_sample_rate(0, self.samp_rate)
-        self.soapy_hackrf_source_0.set_sample_rate(0, self.samp_rate)
 
     def get_offset_freq(self):
         return self.offset_freq

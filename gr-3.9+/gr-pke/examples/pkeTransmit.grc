@@ -155,7 +155,25 @@ blocks:
     bus_structure: null
     coordinate: [792, 220.0]
     rotation: 0
-    state: enabled
+    state: disabled
+- name: blocks_file_sink_0_0
+  id: blocks_file_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    append: 'False'
+    comment: ''
+    file: /home/zee/rf/captures/test.cfile
+    type: complex
+    unbuffered: 'False'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [984, 260.0]
+    rotation: 0
+    state: disabled
 - name: blocks_file_sink_1
   id: blocks_file_sink
   parameters:
@@ -173,7 +191,7 @@ blocks:
     bus_structure: null
     coordinate: [784, 316.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: blocks_float_to_complex_0
   id: blocks_float_to_complex
   parameters:
@@ -190,6 +208,23 @@ blocks:
     coordinate: [208, 176.0]
     rotation: 0
     state: enabled
+- name: blocks_null_sink_0
+  id: blocks_null_sink
+  parameters:
+    affinity: ''
+    alias: ''
+    bus_structure_sink: '[[0,],]'
+    comment: ''
+    num_inputs: '1'
+    type: complex
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate: [1008, 216.0]
+    rotation: 0
+    state: disabled
 - name: blocks_throttle_0
   id: blocks_throttle
   parameters:
@@ -206,7 +241,7 @@ blocks:
     bus_sink: false
     bus_source: false
     bus_structure: null
-    coordinate: [584, 236.0]
+    coordinate: [504, 252.0]
     rotation: 0
     state: disabled
 - name: pke_pkeGenerator_0
@@ -236,7 +271,7 @@ blocks:
     bandwidth: '0'
     center_freq: center_freq
     comment: ''
-    dev_args: hackrf=1
+    dev_args: hackrf=0
     samp_rate: samp_rate
     type: fc32
     vga: '47'
@@ -269,11 +304,11 @@ blocks:
     bus_structure: null
     coordinate: [56, 276.0]
     rotation: 0
-    state: true
+    state: disabled
 - name: xmlrpc_server_0
   id: xmlrpc_server
   parameters:
-    addr: localhost
+    addr: 127.0.0.1
     alias: ''
     comment: ''
     port: '8080'
@@ -290,7 +325,8 @@ connections:
 - [blocks_float_to_complex_0, '0', blocks_file_sink_0, '0']
 - [blocks_float_to_complex_0, '0', blocks_throttle_0, '0']
 - [blocks_float_to_complex_0, '0', soapy_hackrf_sink_0, '0']
-- [blocks_throttle_0, '0', blocks_file_sink_0, '0']
+- [blocks_throttle_0, '0', blocks_file_sink_0_0, '0']
+- [blocks_throttle_0, '0', blocks_null_sink_0, '0']
 - [pke_pkeGenerator_0, '0', blocks_float_to_complex_0, '0']
 - [soapy_hackrf_source_0, '0', blocks_file_sink_1, '0']
 

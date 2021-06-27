@@ -12,6 +12,8 @@ import time # needed for sleep
 
 from tkinter import Tk, filedialog as fd # needed for file dialog
 
+import xmlrpc.client # needed for XMLRPC
+
 
 class Message:
     """
@@ -28,12 +30,12 @@ class Message:
         
         if len(doc) < 4:
             self.msg = "00000000"
-            self.pulseWidth = 0.0002
+            self.bitPeriod = 0.0002
             self.delay = 1
             self.responseFreq = 314350000
         else:
             self.msg = doc[0]
-            self.pulseWidth = float(doc[1])
+            self.bitPeriod = float(doc[1])
             self.delay = float(doc[2])
             self.responseFreq = int(doc[3])
             
@@ -44,7 +46,7 @@ class Message:
         """
         
         print(f"Data: {self.msg}")
-        print(f"Pulse Width: {str(self.pulseWidth)}")
+        print(f"Bit Period: {str(self.bitPeriod)}")
         print(f"Replay Delay: {str(self.delay)}")
         print(f"Response Freq: {str(self.responseFreq)}")
         
@@ -54,23 +56,55 @@ class ScheduleManager:
     """
     Class that manages the scheduling for Marco
     """
-    
-    def __init__(self, txIP, txPN, txRPC, rxIP, rxPN, rxRPC):
-        
+
+    def __init__(self): # default init
+
         self.msgList = [] # the message list that will contain all the messages to transmit
         self.preBP = 0.0 # the previous bit period
         self.preRF = 0 # the previous response frequency
         
         # Creates the UDP sockets
         self.txSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.rxSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        
+        master = Tk()
+        master.withdraw() # hide the default window
 
-        # Holds the server address for the TX source
-        self.txAddress = (str(txIP), int(txPN))
-        self.rxAddress = (str("0.0.0.0"), int(rxPN))
-        
-        #XMLRPC stuff : todo
-        
+        fileName = fd.askopenfilename(parent=master, title='Select Settings File', initialdir='.', filetypes=(('Yaml files', '*.yml'), ('All files', '*.*')))
+
+        with open(fileName) as file:
+            documents = yaml.full_load(file)
+
+            for item, doc in documents.items():
+                if item == 'Marco':
+                    if len(doc) >= 10: 
+                        # Holds the server address for the TX source
+                        self.txAddress = (str(doc[0]), int(doc[1]))
+                        
+                        if doc[2] == '1':
+                            self.enableTX = True
+                        else:
+                            self.enableTX = False
+                        
+                        self.txProxy = xmlrpc.client.ServerProxy(f"http://{doc[0]}:{doc[3]}")
+
+                        if doc[4] == '1':
+                            self.enableRX = True
+                        else:
+                            self.enableRX = False
+                        
+                        self.rxProxy = xmlrpc.client.ServerProxy(f"http://{doc[5]}:{doc[6]}")
+
+                        if self.enableTX:
+
+                            self.txProxy.set_msg_freq(float(doc[7]))
+                            self.txProxy.set_offset_freq(float(doc[8]))
+                            self.txProxy.set_samp_rate(float(doc[9]))
+
+                            self.preBP = float(self.txProxy.get_bit_period())
+
+                        if self.enableRX:
+                            self.preRF = int(self.rxProxy.get_center_freq())
+
     def sendMsg(self, message):
         """
         Generates and transmits the message
@@ -134,12 +168,15 @@ class ScheduleManager:
             
             try:
                 for i in range(len(self.msgList)):
-                    #TODO: check pulse widths and freqs
+                    
+                    if self.enableTX and (self.preBP != self.msgList[i].bitPeriod):
+                        #print(f"preBP: {str(self.preBP)} and new: {str(self.msgList[i].bitPeriod)}")
+                        self.txProxy.set_bit_period(self.msgList[i].bitPeriod)
                     
                     self.sendMsg(self.msgList[i].msg)
                     time.sleep(self.msgList[i].delay)
             except KeyboardInterrupt:
-                print("Keyboard interrupt detected, closing program")
+                print("\nKeyboard interrupt detected, closing program")
                 break
             
 
@@ -148,8 +185,8 @@ class ScheduleManager:
 if __name__ == "__main__":
     print("Starting Marco")
     
-    schMan = ScheduleManager("127.0.0.1", "7331", "8008", "127.0.0.1", "7332", "8009") # creates the schedule manager
-    
+    schMan = ScheduleManager()
+
     schMan.loadConfig() # loads the config file
     
     schMan.runSchedule() # start transmitting
