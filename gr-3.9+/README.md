@@ -24,4 +24,4 @@ Example flow graphs can be found in [examples](./gr-pke/examples/).  There are t
 
 Transmit shows a working transmitter that was used to prove the attack, while decode shows a proof of concept decoder.  
 
-For GR-3.10 : had to move xml files from /usr/share/gnuradio/grc/blocks/ to /usr/local/share/grc/blocks/
+For GR-3.10 : had to move xml files from /usr/share/gnuradio/grc/blocks/ to /usr/local/share/gnuradio/grc/blocks/
