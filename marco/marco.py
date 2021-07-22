@@ -69,7 +69,7 @@ class ScheduleManager:
         master = Tk()
         master.withdraw() # hide the default window
 
-        fileName = fd.askopenfilename(parent=master, title='Select Settings File', initialdir='.', filetypes=(('Yaml files', '*.yml'), ('All files', '*.*')))
+        fileName = fd.askopenfilename(parent=master, title='Select Marco Settings File', initialdir='.', filetypes=(('Yaml files', '*.yml'), ('All files', '*.*')))
 
         with open(fileName) as file:
             documents = yaml.full_load(file)
@@ -130,7 +130,7 @@ class ScheduleManager:
         while keepAdding:
             
             if len(self.msgList) < 1:
-                fileName = fd.askopenfilename(parent=master, title='Select Config File', initialdir='.', filetypes=(('Yaml files', '*.yml'), ('All files', '*.*')))
+                fileName = fd.askopenfilename(parent=master, title='Select Message Config File', initialdir='.', filetypes=(('Yaml files', '*.yml'), ('All files', '*.*')))
 
                 with open(fileName) as file:
                     documents = yaml.full_load(file)
