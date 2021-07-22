@@ -31,5 +31,28 @@ Once you have the hardware you need, and you've double checked what frequencies 
 | :---: |
 | This is hardware setup I used for my captures.  I placed both antennas in the passenger seat, with one antenna being a YouLoop small loop antenna, and the other is the ANT500 antenna that comes with the HackRF.  Each antenna is connected to a separate HackRF, and both SDRs are connected to my laptop.  |
 
+To actually capture the signals, I start my gnuradio script and then press the push to start button of the car several times.  This turns the car on and off, and lets me get several versions of the messages being exchanged.  You can get the same traffic by opening and closing the door from outside the car, but I find its easier to just sit in the vehicle and not move around.  
+
 ## Signal Analysis
 
+Now that we have the captures from both the car and the key fob, its time to analyze them to see how the data link works.  To do that, I personally use a tool called [Inspectrum](https://github.com/miek/inspectrum).  Inspectrum allows you to visualize the complex file you just recorded and analyze the data within the signals.  It's not the only tool that can do this, so feel free to use another if you have your own preferences.  
+
+| ![Insert image of inspectrum](./photos/capTut/analysis.PNG) |
+| :---: |
+| This is what the two captures I recorded look like when opened with inspectrum.  Imb.cfile contains the PKE messages that the car is transmitting at 134 kHz, while fob.cfile contains the message the key fob is transmitting at 315 MHz.  |
+
+Above is a screen shot of what the captures I took look like in inspectrum.  Because I started both SDRs at the same time, the run time of each file is the same, allowing me to match the signals.  In the photo, you can see that the car begins transmitting two messages around 6.6 seconds into the capture.  The key fob responds at the same time, with the pattern being a short message from the car, a short message from the fob, a long message from the car, and finally a long message from the fob.  These four messages make up the four-way handshake.  In your case, you should see either two or four messages here.  If you see four messages, like in the image above, congratulations: your vehicle uses the traditional version of the four-way handshake, with wake-up, acknowledgement, challenge and response messages.  If you only see two messages, that means your vehicle uses the alternative form of the four-way handshake.  This form consists of only the challenge and response messages.  While this means that attacks targeting the wake-up message won't affect your key fob, you can still attack it using the challenge message.  
+
+### Collecting the data needed for Marco
+
+Now that we have the captures, and we've confirmed what implementation of the four-way handshake the vehicle is using, its time to collect the data needed to carry out a Marco attack.  To do that, we need to measure two things using the cars capture file: the bit period, and the message data.  The bit period is the length of time that it takes to transmit a single bit.  Its related to the data rate of the message, but unlike the message rate, the bit period is pretty easy to measure.  Below is an example of how to measure the bit period:
+
+| ![Insert image of bp](./photos/capTut/bp.PNG) |
+| :---: |
+| To find the bit period, use the cursor to select what looks to be a single bit of data from the message.  In the photo above, I've zoomed in on inspectrum to get a better view and I highlighted and measured what is a single bit in the wake-up message.  |
+
+Getting the exact value can be a little challenging, and you may have to adjust your power settings to make sure the signal isn't getting washed out.  Once you have the bit period, its easy to solve for the message data.  All of the messages transmited by the car are in a format known as Amplitude Modulated On-Off Keying (AMOOK).  This means that a digital one is represented by the signal being present, and a digital zero is represented by it being absent.  
+
+Now would also be a good time to mention that there is a slight distortion in the capture I've been showing.  Because the SDR was capturing a signal so close to what is effectively 0 Hz for the upconverter, the signals near that edge were mirrored.  This is why the same signal shows up at both +134 kHz and -134 kHz.  They're not two different signals, they're the same one mirrored by the SDR as its trying to process data from the upconverter along a weird edge case.  
+
+Once you have both your bit period and message data, your ready to program and launch your attack.  
